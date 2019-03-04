@@ -6,6 +6,7 @@ import torch.nn.functional as F
 import math, copy, time
 from torch.autograd import Variable
 import matplotlib.pyplot as plt
+from collections import OrderedDict
 
 # NOTE ==============================================
 #
@@ -48,7 +49,32 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
                       Do not apply dropout on recurrent connections.
         """
         super(RNN, self).__init__()
-   
+        m = nn.Sigmoid()
+        output_size=10
+        #initialize the first hidden unit
+        self.sequences = OrderedDict()
+        self.sequences[0] = nn.Sequential(
+            nn.Linear(emb_size, hidden_size, bias=False),
+            nn.Linear(hidden_size, hidden_size),
+            nn.Sigmoid(),
+            nn.Dropout(dp_keep_prob),
+        )
+
+        for i in range(1,num_layers-1):
+            self.sequences[i] = nn.Sequential(
+                nn.Linear(emb_size, hidden_size, bias=False),
+                nn.Linear(hidden_size, hidden_size),
+                nn.Sigmoid(),
+                nn.Dropout(dp_keep_prob),
+            )
+
+        self.sequences[0] = nn.Sequential(
+            nn.Linear(N,output_size),
+            nn.Sigmoid(),
+            nn.Dropout(dp_keep_prob),
+        )
+
+        self.init_weights_uniform()
         # TODO ========================
         # Initialization of the parameters of the recurrent and fc layers. 
         # Your implementation should support any number of stacked hidden layers 
@@ -65,18 +91,22 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
         # provided clones function.
    
     def init_weights_uniform(self):
-        pass
         # TODO ========================
         # Initialize all the weights uniformly in the range [-0.1, 0.1]
         # and all the biases to 0 (in place)
-   
+        for name, param in self.named_parameters():
+            if 'bias' not in name: 
+                nn.init.uniform_(param, -0.1, 0.1)
+            else 'bias' in name: 
+                param.data.fill_(0)
+
     def init_hidden(self):
         # TODO ========================
         # initialize the hidden states to zero
         """
         This is used for the first mini-batch in an epoch, only.
         """
-        return # a parameter tensor of shape (self.num_layers, self.batch_size, self.hidden_size)
+        return torch.zeros([self.num_layers,self.batch_size, self.hidden_size], dtype=torch.int64)
    
     def forward(self, inputs, hidden):
         # TODO ========================
