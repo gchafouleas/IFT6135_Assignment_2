@@ -51,28 +51,28 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
         super(RNN, self).__init__()
         m = nn.Sigmoid()
         output_size=10
+        self.embedding = nn.Embedding(vocab_size, emb_size)
         #initialize the first hidden unit
-        self.sequences = OrderedDict()
-        self.sequences[0] = nn.Sequential(
+        self.sequences = nn.ModuleList()
+        self.sequences.append(nn.Sequential(
             nn.Linear(emb_size, hidden_size, bias=False),
             nn.Linear(hidden_size, hidden_size),
             nn.Sigmoid(),
             nn.Dropout(dp_keep_prob),
-        )
+        ))
 
-        for i in range(1,num_layers-1):
-            self.sequences[i] = nn.Sequential(
-                nn.Linear(emb_size, hidden_size, bias=False),
+        self.sequences.expend(clones(nn.Sequential(
+                nn.Linear(hidden_size, hidden_size, bias=False),
                 nn.Linear(hidden_size, hidden_size),
                 nn.Sigmoid(),
                 nn.Dropout(dp_keep_prob),
-            )
+            ), num_layers - 1))
 
-        self.sequences[0] = nn.Sequential(
+        self.sequences.append(nn.Sequential(
             nn.Linear(N,output_size),
             nn.Sigmoid(),
             nn.Dropout(dp_keep_prob),
-        )
+        ))
 
         self.init_weights_uniform()
         # TODO ========================
@@ -97,7 +97,7 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
         for name, param in self.named_parameters():
             if 'bias' not in name: 
                 nn.init.uniform_(param, -0.1, 0.1)
-            else 'bias' in name: 
+            elif 'bias' is name: 
                 param.data.fill_(0)
 
     def init_hidden(self):
