@@ -63,26 +63,34 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
         output_size=10
         self.embedding = nn.Embedding(vocab_size, emb_size)
         self.sequenses = nn.ModuleList()
-        #initialize the first hidden unit
-        self.sequences_input = nn.ModuleList([
+
+        # Input layer
+        self.sequence_layers = nn.ModuleList()
+        self.sequence_layers.append(nn.ModuleList([
             nn.Linear(emb_size, hidden_size, bias=False),
             nn.Linear(hidden_size, hidden_size),
             nn.Sigmoid(),
             nn.Dropout(dp_keep_prob)]
-        )
+        ))
 
-        self.sequence_layers = clones(nn.ModuleList([
+        # Hidden layer(s)
+        self.sequence_layers.extend(clones(nn.ModuleList([
                 nn.Linear(hidden_size, hidden_size, bias=False),
                 nn.Linear(hidden_size, hidden_size),
-                nn.Sigmoid(),
+                nn.Tanh(),
                 nn.Dropout(dp_keep_prob)]
-            ), num_layers -1 )
-
+        ), num_layers-1))
+        
+        # Output layer
         self.sequence_ouput = nn.ModuleList([
             nn.Linear(hidden_size,self.vocab_size),
-            nn.Sigmoid(),
-            nn.Dropout(dp_keep_prob)]
+            #nn.Sigmoid(),
+            #nn.Dropout(dp_keep_prob)
+            ]
         )
+
+        # Creates hidden layers
+        #self.hiddens = [Variable(torch.zeros([self.num_layers, self.batch_size, self.hidden_size], dtype=torch.float32), requires_grad=True) for _ in range(self.seq_len)]
 
         print("initialization: ", self.sequence_layers)
         self.init_weights_uniform()
@@ -112,12 +120,12 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
                 param.data.fill_(0)
 
     def init_hidden(self):
-        # TODO ========================
+        # TODO =======================
         # initialize the hidden states to zero
         """
         This is used for the first mini-batch in an epoch, only.
         """
-        return torch.zeros([self.num_layers,self.batch_size, self.hidden_size], dtype=torch.float32)
+        return torch.zeros([self.num_layers, self.batch_size, self.hidden_size], dtype=torch.float32)
    
     def forward(self, inputs, hidden):
         # TODO ========================
@@ -155,26 +163,44 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
                   if you are curious.
                         shape: (num_layers, batch_size, hidden_size)
         """
-        count =0
-        self.hidden_outputs = []  
-        logits = torch.zeros([self.seq_len, self.batch_size, self.vocab_size])
-        logits = logits.to(torch.device("cuda"))
-        for i in range(0, self.seq_len):
-            data = self.embedding(inputs[i])
-            data = data.type(torch.FloatTensor).to(torch.device("cuda"))
-            data = self.sequences_input[0](data) + self.sequences_input[1](hidden[0])
-            data2 = self.sequences_input[2](data)
-            hidden[0] = data2
-            data4 = torch.zeros([self.batch_size, self.hidden_size]).to(torch.device("cuda"))         
-            for j in range(1, self.num_layers -1):
-                data3 = self.sequence_layers[j][0](data2) + self.sequence_layers[j][1](hidden[j])
-                data4 = self.sequence_layers[j][2](data3)
-                hidden[j] = data4
-            data5 = self.sequence_ouput[0](data4)
-            data6 = self.sequence_ouput[1](data5) 
-            logits[i] = data6
 
-        return logits.view(self.seq_len, self.batch_size, self.vocab_size), hidden
+        self.hidden_outputs = []
+        self.hidden_outputs.append(hidden)
+
+        logits = Variable(torch.zeros([self.seq_len, self.batch_size, self.vocab_size]), requires_grad=True)
+        logits = logits.to(torch.device("cuda"))
+
+        for i in range(self.seq_len):
+
+            # Initialize hidden layer for next iteration
+            hidden_out = self.init_hidden().to(torch.device('cuda'))
+            data = self.embedding(inputs[i])
+
+            #data = torch.zeros([self.batch_size, self.hidden_size]).to(torch.device("cuda"))
+
+            for j in range(self.num_layers):
+                data = self.sequence_layers[j][0](data) + self.sequence_layers[j][1](self.hidden_outputs[i][j])
+                data = self.sequence_layers[j][2](data)
+                #data = self.sequence_layers[j][3](data)
+                hidden_out[j] = data
+            #print(data)
+            #print('-----------------------------------------------------')
+
+            data = self.sequence_ouput[0](data)
+            #data = self.sequence_ouput[1](data) 
+            if data[0][0] == 1.0:
+                print(data)
+                print(self.hidden_outputs[i])
+                raise Exception()
+
+            logits[i] = data
+
+            # Pushes temp hidden out to list of hidden outputs
+            self.hidden_outputs.append(Variable(hidden_out, requires_grad=True))
+
+            #print(logits)
+
+        return logits.view(self.seq_len, self.batch_size, self.vocab_size), self.hidden_outputs[-1]
    
     def generate(self, input, hidden, generated_seq_len):
         # TODO ========================
