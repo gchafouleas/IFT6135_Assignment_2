@@ -188,10 +188,10 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
 
             data = self.sequence_ouput[0](data)
             #data = self.sequence_ouput[1](data) 
-            if data[0][0] == 1.0:
-                print(data)
-                print(self.hidden_outputs[i])
-                raise Exception()
+            #if data[0][0] == 1.0:
+            #    print(data)
+            #    print(self.hidden_outputs[i])
+            #    raise Exception()
 
             logits[i] = data
 
