@@ -403,10 +403,6 @@ def run_epoch(model, data, is_train=False, lr=1.0):
             print(step, loss)
         if is_train:  # Only update parameters if training 
             loss.backward()
-            #for p in model.parameters():
-            #    if p.grad is not None:
-            #        print(p.grad.data)
-            #raise Excetion()
 
             torch.nn.utils.clip_grad_norm_(model.parameters(), 0.25)
             if args.optimizer == 'ADAM':

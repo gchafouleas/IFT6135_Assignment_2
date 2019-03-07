@@ -59,6 +59,8 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
         self.num_layers = num_layers
         self.dp_keep_prob = dp_keep_prob
 
+        self.hidden_outputs = []
+
         m = nn.Sigmoid()
         output_size=10
         self.embedding = nn.Embedding(vocab_size, emb_size)
@@ -164,11 +166,13 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
                         shape: (num_layers, batch_size, hidden_size)
         """
 
-        self.hidden_outputs = []
-        self.hidden_outputs.append(hidden)
+        #self.hidden_outputs.append(hidden)
 
         logits = Variable(torch.zeros([self.seq_len, self.batch_size, self.vocab_size]), requires_grad=True)
         logits = logits.to(torch.device("cuda"))
+
+        #prev_hidden = None
+        prev_hidden = hidden
 
         for i in range(self.seq_len):
 
@@ -176,31 +180,26 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
             hidden_out = self.init_hidden().to(torch.device('cuda'))
             data = self.embedding(inputs[i])
 
-            #data = torch.zeros([self.batch_size, self.hidden_size]).to(torch.device("cuda"))
-
             for j in range(self.num_layers):
-                data = self.sequence_layers[j][0](data) + self.sequence_layers[j][1](self.hidden_outputs[i][j])
+                #data = self.sequence_layers[j][0](data) + self.sequence_layers[j][1](self.hidden_outputs[i][j])
+                data = self.sequence_layers[j][0](data) + self.sequence_layers[j][1](prev_hidden[j])
                 data = self.sequence_layers[j][2](data)
-                #data = self.sequence_layers[j][3](data)
                 hidden_out[j] = data
+                data = self.sequence_layers[j][3](data)
             #print(data)
             #print('-----------------------------------------------------')
 
             data = self.sequence_ouput[0](data)
-            #data = self.sequence_ouput[1](data) 
-            #if data[0][0] == 1.0:
-            #    print(data)
-            #    print(self.hidden_outputs[i])
-            #    raise Exception()
-
             logits[i] = data
 
             # Pushes temp hidden out to list of hidden outputs
-            self.hidden_outputs.append(Variable(hidden_out, requires_grad=True))
+            #self.hidden_outputs.append(Variable(hidden_out, requires_grad=True))
+            #prev_hidden = Variable(hidden_out, requires_grad=True)
+            prev_hidden = hidden_out
 
-            #print(logits)
 
-        return logits.view(self.seq_len, self.batch_size, self.vocab_size), self.hidden_outputs[-1]
+        #return logits.view(self.seq_len, self.batch_size, self.vocab_size), self.hidden_outputs[-1]
+        return logits.view(self.seq_len, self.batch_size, self.vocab_size), prev_hidden
    
     def generate(self, input, hidden, generated_seq_len):
         # TODO ========================
