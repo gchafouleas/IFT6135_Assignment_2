@@ -289,12 +289,24 @@ class GRU(nn.Module): # Implement a stacked GRU RNN
         self.init_weights_uniform()
 
     def init_weights_uniform(self):
-        pass
-        for name, param in self.named_parameters():
-            if 'bias' not in name: 
-                nn.init.uniform_(param, -0.1, 0.1)
-            elif 'bias' is name: 
-                param.data.fill_(0)
+
+        #init first layer with uniform between -0.1 to 0.1
+        self.initialize_sequence_weights(0.1, 0)
+        for i in range(6):
+            if self.sequence_layers[0][i].bias is not None:
+                torch.nn.init.constant_(self.sequence_layers[0][i].bias, 0)
+
+        for i in range(1, self.num_layers):
+            self.initialize_sequence_weights(math.sqrt(1/self.hidden_size), i)
+
+        torch.nn.init.uniform_(self.sequence_ouput[0].weight, -0.1, 0.1)
+        torch.nn.init.constant_(self.sequence_ouput[0].bias, 0)
+
+    def initialize_sequence_weights(self, b, layer):
+        for i in range(6):
+            torch.nn.init.uniform_(self.sequence_layers[layer][i].weight, -b, b)
+            if self.sequence_layers[layer][i].bias is not None:
+                torch.nn.init.uniform_(self.sequence_layers[layer][i].bias, -b, b)
 
     def init_hidden(self):
         # TODO ========================
