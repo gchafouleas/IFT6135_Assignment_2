@@ -100,7 +100,7 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
         # Your implementation should support any number of stacked hidden layers 
         # (specified by num_layers), use an input embedding layer, and include fully
         # connected layers with dropout after each recurrent layer.
-        # Note: you may use pytorch's nn.Linear, nn.Dropout, and nn.Embedding 
+        # Note: you may use pytorch's nn.Linear, nn.Dropout, and nn.Embedding
         # modules, but not recurrent modules.
         #
         # To create a variable number of parameter tensors and/or nn.Modules 
@@ -172,12 +172,13 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
 
         #prev_hidden = None
         prev_hidden = hidden
+        inputs = self.embedding(inputs)
 
         for i in range(self.seq_len):
 
             # Initialize hidden layer for next iteration
             hidden_out = self.init_hidden().to(torch.device('cuda'))
-            data = self.embedding(inputs[i])
+            data = inputs[i]
 
             for j in range(self.num_layers):
                 #data = self.sequence_layers[j][0](data) + self.sequence_layers[j][1](self.hidden_outputs[i][j])
@@ -252,6 +253,7 @@ class GRU(nn.Module): # Implement a stacked GRU RNN
         m = nn.Sigmoid()
         output_size=10
         self.embedding = nn.Embedding(vocab_size, emb_size)
+        self.dropout = nn.Dropout(1-dp_keep_prob)
         self.sequenses = nn.ModuleList()
 
         # Input layer
@@ -263,7 +265,11 @@ class GRU(nn.Module): # Implement a stacked GRU RNN
             nn.Linear(hidden_size, hidden_size),
             nn.Linear(emb_size, hidden_size, bias=False),
             nn.Linear(hidden_size, hidden_size),
-            nn.Dropout(dp_keep_prob)]
+            nn.Dropout(1-dp_keep_prob),
+            nn.Sigmoid(),
+            nn.Sigmoid(),
+            nn.Tanh(),
+            ]
         ))
 
         # Hidden layer(s)
@@ -274,7 +280,10 @@ class GRU(nn.Module): # Implement a stacked GRU RNN
                 nn.Linear(hidden_size, hidden_size),
                 nn.Linear(hidden_size, hidden_size, bias=False),
                 nn.Linear(hidden_size, hidden_size),
-                nn.Dropout(dp_keep_prob)]
+                nn.Dropout(1-dp_keep_prob),
+                nn.Sigmoid(),
+                nn.Sigmoid(),
+                nn.Tanh(),]
         ), num_layers-1))
         
         # Output layer
@@ -318,22 +327,25 @@ class GRU(nn.Module): # Implement a stacked GRU RNN
 
         #prev_hidden = None
         prev_hidden = hidden
-        sigmoid = nn.Sigmoid()
-        tanh = nn.Tanh()
+        #sigmoid = nn.Sigmoid()
+        #tanh = nn.Tanh()
+        inputs = self.embedding(inputs)
+
         for i in range(self.seq_len):
+
+            data = self.dropout(inputs[i])
 
             # Initialize hidden layer for next iteration
             hidden_out = self.init_hidden().to(torch.device('cuda'))
-            data = self.embedding(inputs[i])
 
             for j in range(self.num_layers):
                 #data = self.sequence_layers[j][0](data) + self.sequence_layers[j][1](self.hidden_outputs[i][j])
-                reset = sigmoid(self.sequence_layers[j][0](data) + self.sequence_layers[j][1](prev_hidden[j]))
-                forget =sigmoid(self.sequence_layers[j][2](data) + self.sequence_layers[j][3](prev_hidden[j]))
-                tild_hidden = tanh(self.sequence_layers[j][4](data) + self.sequence_layers[j][5](torch.mul(reset,prev_hidden[j])))
+                reset = self.sequence_layers[j][7](self.sequence_layers[j][0](data) + self.sequence_layers[j][1](prev_hidden[j]))
+                forget =self.sequence_layers[j][8](self.sequence_layers[j][2](data) + self.sequence_layers[j][3](prev_hidden[j]))
+                tild_hidden = self.sequence_layers[j][9](self.sequence_layers[j][4](data) + self.sequence_layers[j][5](torch.mul(reset,prev_hidden[j])))
                 data = torch.mul((1 - forget),prev_hidden[j]) + torch.mul(forget,tild_hidden)
                 hidden_out[j] = data
-                data = self.sequence_layers[j][6](tild_hidden)
+                data = self.sequence_layers[j][6](data)
             #print(data)
             #print('-----------------------------------------------------')
 
@@ -344,7 +356,7 @@ class GRU(nn.Module): # Implement a stacked GRU RNN
             #self.hidden_outputs.append(Variable(hidden_out, requires_grad=True))
             #prev_hidden = Variable(hidden_out, requires_grad=True)
             prev_hidden = hidden_out
-        return logits.view(self.seq_len, self.batch_size, self.vocab_size), hidden
+        return logits.view(self.seq_len, self.batch_size, self.vocab_size), prev_hidden
 
     def generate(self, input, hidden, generated_seq_len):
         # TODO ========================
