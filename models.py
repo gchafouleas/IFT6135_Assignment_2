@@ -61,9 +61,8 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
 
         self.hidden_outputs = []
 
-        m = nn.Sigmoid()
-        output_size=10
         self.embedding = nn.Embedding(vocab_size, emb_size)
+        self.dropout = nn.Dropout(1-dp_keep_prob)
         self.sequenses = nn.ModuleList()
 
         # Input layer
@@ -71,8 +70,8 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
         self.sequence_layers.append(nn.ModuleList([
             nn.Linear(emb_size, hidden_size, bias=False),
             nn.Linear(hidden_size, hidden_size),
-            nn.Sigmoid(),
-            nn.Dropout(dp_keep_prob)]
+            nn.Tanh(),
+            nn.Dropout(1-dp_keep_prob)]
         ))
 
         # Hidden layer(s)
@@ -80,14 +79,12 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
                 nn.Linear(hidden_size, hidden_size, bias=False),
                 nn.Linear(hidden_size, hidden_size),
                 nn.Tanh(),
-                nn.Dropout(dp_keep_prob)]
+                nn.Dropout(1-dp_keep_prob)]
         ), num_layers-1))
         
         # Output layer
         self.sequence_ouput = nn.ModuleList([
-            nn.Linear(hidden_size,self.vocab_size),
-            #nn.Sigmoid(),
-            #nn.Dropout(dp_keep_prob)
+            nn.Linear(hidden_size,self.vocab_size)
             ]
         )
 
@@ -112,13 +109,24 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
    
     def init_weights_uniform(self):
         # TODO ========================
-        # Initialize all the weights uniformly in the range [-0.1, 0.1]
-        # and all the biases to 0 (in place)
-        for name, param in self.named_parameters():
-            if 'bias' not in name: 
-                nn.init.uniform_(param, -0.1, 0.1)
-            elif 'bias' is name: 
-                param.data.fill_(0)
+        # Initialize the embedding and output weights uniformly in the range [-0.1, 0.1]
+        # and output biases to 0 (in place). The embeddings should not use a bias vector.
+        # Initialize all other (i.e. recurrent and linear) weights AND biases uniformly 
+        # in the range [-k, k] where k is the square root of 1/hidden_size
+
+        torch.nn.init.uniform_(self.embedding.weight, -0.1, 0.1)
+
+        for i in range(self.num_layers):
+            self.initialize_sequence_weights(math.sqrt(1/self.hidden_size), i)
+
+        torch.nn.init.uniform_(self.sequence_ouput[0].weight, -0.1, 0.1)
+        torch.nn.init.constant_(self.sequence_ouput[0].bias, 0)
+
+    def initialize_sequence_weights(self, b, layer):
+        for i in range(2):
+            torch.nn.init.uniform_(self.sequence_layers[layer][i].weight, -b, b)
+            if self.sequence_layers[layer][i].bias is not None:
+                torch.nn.init.uniform_(self.sequence_layers[layer][i].bias, -b, b)
 
     def init_hidden(self):
         # TODO =======================
@@ -172,14 +180,11 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
 
         #prev_hidden = None
         prev_hidden = hidden
-        inputs = self.embedding(inputs)
-
         for i in range(self.seq_len):
 
             # Initialize hidden layer for next iteration
-            hidden_out = self.init_hidden().to(torch.device('cuda'))
-            data = inputs[i]
-
+            hidden_out = self.init_hidden().to(torch.device('cuda')
+            data = self.embedding(inputs[i])
             for j in range(self.num_layers):
                 #data = self.sequence_layers[j][0](data) + self.sequence_layers[j][1](self.hidden_outputs[i][j])
                 data = self.sequence_layers[j][0](data) + self.sequence_layers[j][1](prev_hidden[j])
