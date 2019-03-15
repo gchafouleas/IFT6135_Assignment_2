@@ -373,14 +373,15 @@ class MultiHeadedAttention(nn.Module):
             query_i = self.sequence_layers[head][0](query)
             key_i = self.sequence_layers[head][1](key)
             value_i = self.sequence_layers[head][2](value)
-            x = torch.matmul(query_i, torch.transpose(key_i, 1,2))/self.d_k
-            x_tild = torch.mul(x,mask)
+            x = torch.matmul(query_i, torch.transpose(key_i, 1,2))/math.sqrt(self.d_k)
+            x_tild = torch.mul(x,(mask - (10**9)*(1-mask)))
             score_i = softmax(x_tild)
+            score_i = self.sequence_layers[head][3](score_i)
             h_i = torch.matmul(score_i,value_i)
             attention_i.append(h_i)
 
-        test = torch.cat(attention_i, dim=2)
-        attention = self.output(test)
+        data = torch.cat(attention_i, dim=2)
+        attention = self.output(data)
 
         return attention
 
