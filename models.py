@@ -442,23 +442,58 @@ class MultiHeadedAttention(nn.Module):
         # This sets the size of the keys, values, and queries (self.d_k) to all 
         # be equal to the number of output units divided by the number of heads.
         self.d_k = n_units // n_heads
+        print(n_units, n_heads)
         # This requires the number of n_heads to evenly divide n_units.
         assert n_units % n_heads == 0
-        self.n_units = n_units 
+        self.n_units = n_units
+        self.n_heads = n_heads 
 
         # TODO: create/initialize any necessary parameters or layers
+        # Initialize all weights and biases uniformly in the range [-k, k],
+        # where k is the square root of 1/n_units.
         # Note: the only Pytorch modules you are allowed to use are nn.Linear 
         # and nn.Dropout
-        
+        self.sequence_layers = nn.ModuleList()
+        self.sequence_layers.extend(clones(nn.ModuleList([
+                nn.Linear(n_units, n_units),
+                nn.Linear(n_units, n_units),
+                nn.Linear(n_units, n_units),
+                nn.Dropout(dropout)]
+        ), n_heads))
+
+        self.output = nn.Linear(n_heads*n_units, n_units)
+
+        self.initialize_parameters_uniform()
+    
+    def initialize_parameters_uniform(self):
+        for param in self.parameters():
+            torch.nn.init.uniform_(param, -math.sqrt(1/self.n_units), math.sqrt(1/self.n_units))
+
     def forward(self, query, key, value, mask=None):
         # TODO: implement the masked multi-head attention.
-        # query, key, and value all have size: (batch_size, seq_len, self.n_units, self.d_k)
+        # query, key, and value all have size: (batch_size, seq_len, self.n_units)
         # mask has size: (batch_size, seq_len, seq_len)
         # As described in the .tex, apply input masking to the softmax 
         # generating the "attention values" (i.e. A_i in the .tex)
         # Also apply dropout to the attention values.
+        softmax = nn.Softmax(dim=0)
+        attention_i = []
+        mask = mask.to(torch.device("cuda:0" if torch.cuda.is_available() else "cpu"), dtype=torch.float32)
+        for head in range(self.n_heads):
+            query_i = self.sequence_layers[head][0](query)
+            key_i = self.sequence_layers[head][1](key)
+            value_i = self.sequence_layers[head][2](value)
+            x = torch.matmul(query_i, torch.transpose(key_i, 1,2))/math.sqrt(self.d_k)
+            x_tild = torch.mul(x,(mask - (10**9)*(1-mask)))
+            score_i = softmax(x_tild)
+            score_i = self.sequence_layers[head][3](score_i)
+            h_i = torch.matmul(score_i,value_i)
+            attention_i.append(h_i)
 
-        return # size: (batch_size, seq_len, self.n_units)
+        data = torch.cat(attention_i, dim=2)
+        attention = self.output(data)
+
+        return attention
 
 
 
