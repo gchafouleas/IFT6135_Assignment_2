@@ -298,14 +298,15 @@ class GRU(nn.Module): # Implement a stacked GRU RNN
         self.init_weights_uniform()
 
     def init_weights_uniform(self):
+        # TODO ========================
+        # Initialize the embedding and output weights uniformly in the range [-0.1, 0.1]
+        # and output biases to 0 (in place). The embeddings should not use a bias vector.
+        # Initialize all other (i.e. recurrent and linear) weights AND biases uniformly 
+        # in the range [-k, k] where k is the square root of 1/hidden_size
 
-        #init first layer with uniform between -0.1 to 0.1
-        self.initialize_sequence_weights(0.1, 0)
-        for i in range(6):
-            if self.sequence_layers[0][i].bias is not None:
-                torch.nn.init.constant_(self.sequence_layers[0][i].bias, 0)
+        torch.nn.init.uniform_(self.embedding.weight, -0.1, 0.1)
 
-        for i in range(1, self.num_layers):
+        for i in range(self.num_layers):
             self.initialize_sequence_weights(math.sqrt(1/self.hidden_size), i)
 
         torch.nn.init.uniform_(self.sequence_ouput[0].weight, -0.1, 0.1)
