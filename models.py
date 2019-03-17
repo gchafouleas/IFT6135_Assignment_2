@@ -442,7 +442,6 @@ class MultiHeadedAttention(nn.Module):
         # This sets the size of the keys, values, and queries (self.d_k) to all 
         # be equal to the number of output units divided by the number of heads.
         self.d_k = n_units // n_heads
-        print(n_units, n_heads)
         # This requires the number of n_heads to evenly divide n_units.
         assert n_units % n_heads == 0
         self.n_units = n_units
@@ -484,11 +483,27 @@ class MultiHeadedAttention(nn.Module):
             value_i = self.sequence_layers[head][2](value)
             x = torch.matmul(query_i, torch.transpose(key_i, 1,2))/math.sqrt(self.d_k)
             x_tild = torch.mul(x,mask) - ((10**9)*(1-mask))
+            ##x_tild = torch.empty(x.shape)
+            ##x_tild[mask] = x[mask]
+            ##x_tild[~mask] = -(10)**9
             score_i = F.softmax(x_tild, dim=0)
             score_i = self.sequence_layers[head][3](score_i)
-            h_i = torch.matmul(score_i,value_i)
+            #h_i = torch.matmul(
+            #    self.sequence_layers[head][3](
+            #        F.softmax(
+            #            torch.mul(
+            #                torch.matmul(
+            #                    self.sequence_layers[head][0](query),
+            #                    torch.transpose(self.sequence_layers[head][1](key), 1,2))/math.sqrt(self.d_k),
+            #                mask
+            #            ) - ((10**9)*(1-mask)),
+            #            dim=0
+            #        )
+            #    ),
+            #    self.sequence_layers[head][2](value)
+            #)
+            h_i = torch.matmul(score_i, value_i)
             attention_i.append(h_i)
-
         data = torch.cat(attention_i, dim=2)
         attention = self.output(data)
 
@@ -611,7 +626,7 @@ def subsequent_mask(size):
 
 class Batch:
     "Object for holding a batch of data with mask during training."
-    def __init__(self, x, pad=0):
+    def __init__(self, x, pad=-1):
         self.data = x
         self.mask = self.make_mask(self.data, pad)
     
