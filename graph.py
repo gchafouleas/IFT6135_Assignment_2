@@ -44,71 +44,80 @@ def get_values(path, file_path):
 
     return train_loss, valid_loss, train_ppl, valid_ppl, times
 
-def plot_graphs(train_loss, valid_loss, train_ppl, valid_ppl, times):
+def plot_graphs(train_loss, valid_loss, train_ppl, valid_ppl, times, path, model_type = "RNN"):
 
-    plt.plot(train_loss, 'r--', valid_loss, 'bs')
+    plt.plot(train_loss, 'o-', valid_loss, 'o-')
     plt.ylabel("Loss")
     plt.xlabel("Epoch")
-    plt.title("Loss Per Epoch")
+    plt.title(model_type + " - Loss Per Epoch")
     plt.legend(labels = ["train", "valid"])
-    plt.show()
+    plt.savefig(path + model_type + '_loss_epoch.png', bbox_inches='tight')
+    plt.clf()
 
-    plt.plot(times, train_loss, 'r--')
-    plt.plot(times, valid_loss, 'bs')
+    plt.plot(times, train_loss, 'o-')
+    plt.plot(times, valid_loss, 'o-')
     plt.ylabel("Loss")
     plt.xlabel("wall clock time")
-    plt.title("Loss Per wall clock")
+    plt.title(model_type + " - Loss Per wall clock")
     plt.legend(labels = ["train", "valid"])
-    plt.show()
+    plt.savefig(path + model_type + '_loss_clock.png', bbox_inches='tight')
+    plt.clf()
 
-    plt.plot(train_ppl, 'r--', valid_ppl, 'bs')
+    smallest_train_ppl = int(np.amin(train_ppl))
+    smallest_valid_ppl = int(np.amin(valid_ppl))
+    smallest_value = "Train ppl:{} valid ppl: {} ".format(smallest_train_ppl,smallest_valid_ppl)
+    plt.plot(train_ppl, 'o-', valid_ppl, 'o-')
     plt.ylabel("ppl")
     plt.xlabel("Epoch")
-    plt.title("PPL Per Epoch")
-    plt.legend(labels = ["train", "valid"])
-    plt.show()
+    plt.title(model_type + " - PPL Per Epoch")
+    plt.legend(labels = ["train: {}".format(smallest_train_ppl), "valid: {}".format(smallest_valid_ppl)])
+    plt.savefig(path + model_type + '_ppl_epoch.png', bbox_inches='tight')
+    plt.clf()
 
-    plt.plot(times, train_ppl, 'r--')
-    plt.plot(times, valid_ppl, 'bs')
+    plt.plot(times, train_ppl, 'o-')
+    plt.plot(times, valid_ppl, 'o-')
     plt.ylabel("Loss")
     plt.xlabel("wall clock time")
-    plt.title("Loss Per wall clock")
-    plt.legend(labels = ["train", "valid"])
-    plt.show()
+    plt.title(model_type + " - Loss Per wall clock")
+    plt.legend(labels = ["train: {}".format(smallest_train_ppl), "valid: {}".format(smallest_valid_ppl)])
+    plt.savefig(path + model_type + '_ppl_clock.png', bbox_inches='tight')
+    plt.clf()
 
 #loading data from RNN
-lc_path = "RNN_ADAM_model=RNN_optimizer=ADAM_initial_lr=0.0001_batch_size=20_seq_len=35_hidden_size=1500_num_layers=2_dp_keep_prob=0.35_save_best_27/learning_curves.npy"
-filepath = "RNN_ADAM_model=RNN_optimizer=ADAM_initial_lr=0.0001_batch_size=20_seq_len=35_hidden_size=1500_num_layers=2_dp_keep_prob=0.35_save_best_27/log.txt"
+lc_path = "RNN_SGD_LR_4.2/learning_curves.npy"
+filepath = "RNN_SGD_LR_4.2/log.txt"
 train_loss, valid_loss_RNN, train_ppl, valid_ppl_RNN, times = get_values(lc_path, filepath)
-plot_graphs(train_loss, valid_loss_RNN, train_ppl, valid_ppl_RNN, times)
+plot_graphs(train_loss, valid_loss_RNN, train_ppl, valid_ppl_RNN, times, "RNN_SGD_LR_4.2/")
 
 #loading data from GRU
-lc_path = "RNN_ADAM_model=RNN_optimizer=ADAM_initial_lr=0.0001_batch_size=20_seq_len=35_hidden_size=1500_num_layers=2_dp_keep_prob=0.35_save_best_27/learning_curves.npy"
-filepath = "RNN_ADAM_model=RNN_optimizer=ADAM_initial_lr=0.0001_batch_size=20_seq_len=35_hidden_size=1500_num_layers=2_dp_keep_prob=0.35_save_best_27/log.txt"
+lc_path = "GRU_SGD_4.2/learning_curves.npy"
+filepath = "GRU_SGD_4.2/log.txt"
 train_loss, valid_loss_GRU, train_ppl, valid_ppl_GRU, times = get_values(lc_path, filepath)
-plot_graphs(train_loss, valid_loss_GRU, train_ppl, valid_ppl_GRU, times)
+plot_graphs(train_loss, valid_loss_GRU, train_ppl, valid_ppl_GRU, times, "GRU_SGD_4.2/" ,"GRU")
 
 #loading data from TRANSFORMER
-lc_path = "RNN_ADAM_model=RNN_optimizer=ADAM_initial_lr=0.0001_batch_size=20_seq_len=35_hidden_size=1500_num_layers=2_dp_keep_prob=0.35_save_best_27/learning_curves.npy"
-filepath = "RNN_ADAM_model=RNN_optimizer=ADAM_initial_lr=0.0001_batch_size=20_seq_len=35_hidden_size=1500_num_layers=2_dp_keep_prob=0.35_save_best_27/log.txt"
+lc_path = "RNN_SGD_LR_4.2/learning_curves.npy"
+filepath = "RNN_SGD_LR_4.2/log.txt"
 train_loss, valid_loss_TR, train_ppl, valid_ppl_TR, times = get_values(lc_path, filepath)
-plot_graphs(train_loss, valid_loss_TR, train_ppl, valid_ppl_TR, times)
+#plot_graphs(train_loss, valid_loss_TR, train_ppl, valid_ppl_TR, times, "TRANSFORMER")
 
 #plot all architecture graphs
-plt.plot(times, valid_loss_RNN, 'r--')
-plt.plot(times, valid_loss_GRU, 'bs')
-plt.plot(times, valid_loss_TR, 'gs')
+plt.plot(times, valid_loss_RNN, 'o-')
+plt.plot(times, valid_loss_GRU, 'o-')
+plt.plot(times, valid_loss_TR, 'o-')
 plt.ylabel("Loss")
 plt.xlabel("wall clock time")
-plt.title("Loss Per wall clock")
+plt.title("All - Loss Per wall clock")
 plt.legend(labels = ["RNN", "GRU", "TRANSFORMER"])
-plt.show()
+#plt.savefig('plots/4.1_all_loss_clock.png', bbox_inches='tight')
+#plt.clf()
 
-plt.plot(valid_loss_RNN, 'r--')
-plt.plot(valid_loss_GRU, 'bs')
-plt.plot(valid_loss_TR, 'gs')
+plt.plot(valid_loss_RNN, 'o-')
+plt.plot(valid_loss_GRU, 'o-')
+plt.plot(valid_loss_TR, 'o-')
 plt.ylabel("Loss")
 plt.xlabel("epoch")
-plt.title("Loss Per epoch")
+plt.title("All - Loss Per epoch")
 plt.legend(labels = ["RNN", "GRU", "TRANSFORMER"])
-plt.show()
+#plt.savefig('plots/4.1_all_loss_epoch.png', bbox_inches='tight')
+#plt.clf()
