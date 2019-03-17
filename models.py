@@ -476,32 +476,19 @@ class MultiHeadedAttention(nn.Module):
         # generating the "attention values" (i.e. A_i in the .tex)
         # Also apply dropout to the attention values.
         attention_i = []
-        mask = mask.to(torch.device("cuda:0" if torch.cuda.is_available() else "cpu"), dtype=torch.float32)
+        #mask = mask.to(torch.device("cuda:0" if torch.cuda.is_available() else "cpu"), dtype=torch.float32)
         for head in range(self.n_heads):
             query_i = self.sequence_layers[head][0](query)
             key_i = self.sequence_layers[head][1](key)
             value_i = self.sequence_layers[head][2](value)
             x = torch.matmul(query_i, torch.transpose(key_i, 1,2))/math.sqrt(self.d_k)
-            x_tild = torch.mul(x,mask) - ((10**9)*(1-mask))
-            ##x_tild = torch.empty(x.shape)
-            ##x_tild[mask] = x[mask]
-            ##x_tild[~mask] = -(10)**9
+            #x_tild = torch.mul(x,mask) - ((10**9)*(1-mask))
+            x_tild = x
+            x_tild[~mask] = -(10)**9
+            #x_tild[mask] = x[mask]
+            #x_tild[~mask] = -(10)**9
             score_i = F.softmax(x_tild, dim=0)
             score_i = self.sequence_layers[head][3](score_i)
-            #h_i = torch.matmul(
-            #    self.sequence_layers[head][3](
-            #        F.softmax(
-            #            torch.mul(
-            #                torch.matmul(
-            #                    self.sequence_layers[head][0](query),
-            #                    torch.transpose(self.sequence_layers[head][1](key), 1,2))/math.sqrt(self.d_k),
-            #                mask
-            #            ) - ((10**9)*(1-mask)),
-            #            dim=0
-            #        )
-            #    ),
-            #    self.sequence_layers[head][2](value)
-            #)
             h_i = torch.matmul(score_i, value_i)
             attention_i.append(h_i)
         data = torch.cat(attention_i, dim=2)
