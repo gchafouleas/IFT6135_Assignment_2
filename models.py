@@ -5,7 +5,6 @@ import numpy as np
 import torch.nn.functional as F
 import math, copy, time
 from torch.autograd import Variable
-import matplotlib.pyplot as plt
 from collections import OrderedDict
 
 # NOTE ==============================================
@@ -484,7 +483,7 @@ class MultiHeadedAttention(nn.Module):
             key_i = self.sequence_layers[head][1](key)
             value_i = self.sequence_layers[head][2](value)
             x = torch.matmul(query_i, torch.transpose(key_i, 1,2))/math.sqrt(self.d_k)
-            x_tild = torch.mul(x,(mask - (10**9)*(1-mask)))
+            x_tild = torch.mul(x,mask) - ((10**9)*(1-mask))
             score_i = F.softmax(x_tild, dim=0)
             score_i = self.sequence_layers[head][3](score_i)
             h_i = torch.matmul(score_i,value_i)
