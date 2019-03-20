@@ -168,18 +168,19 @@ experiment_path = os.path.join(args.save_dir+'_'.join([argsdict['model'],
 # Increment a counter so that previous results with the same args will not
 # be overwritten. Comment out the next four lines if you only want to keep
 # the most recent results.
-i = 0
-while os.path.exists(experiment_path + "_" + str(i)):
-    i += 1
-experiment_path = experiment_path + "_" + str(i)
+if not args.load_model:
+    i = 0
+    while os.path.exists(experiment_path + "_" + str(i)):
+        i += 1
+    experiment_path = experiment_path + "_" + str(i)
 
-# Creates an experimental directory and dumps all the args to a text file
-os.mkdir(experiment_path)
-print ("\nPutting log in %s"%experiment_path)
-argsdict['save_dir'] = experiment_path
-with open (os.path.join(experiment_path,'exp_config.txt'), 'w') as f:
-    for key in sorted(argsdict):
-        f.write(key+'    '+str(argsdict[key])+'\n')
+    # Creates an experimental directory and dumps all the args to a text file
+    os.mkdir(experiment_path)
+    print ("\nPutting log in %s"%experiment_path)
+    argsdict['save_dir'] = experiment_path
+    with open (os.path.join(experiment_path,'exp_config.txt'), 'w') as f:
+        for key in sorted(argsdict):
+            f.write(key+'    '+str(argsdict[key])+'\n')
 
 # Set the random seed manually for reproducibility.
 torch.manual_seed(args.seed)
@@ -377,10 +378,11 @@ def run_epoch(model, data, is_train=False, lr=1.0, compute_stats=False):
     losses = []
 
     if not is_train and compute_stats:
-        avg_loss = np.empty(seq_len)
+        avg_loss = np.empty(model.seq_len)
         counter = 0
 
     # LOOP THROUGH MINIBATCHES
+    avg_loss = np.zeros(model.seq_len)
     for step, (x, y) in enumerate(ptb_iterator(data, model.batch_size, model.seq_len)):
         if args.model == 'TRANSFORMER':
             batch = Batch(torch.from_numpy(x).long().to(device))
@@ -394,6 +396,7 @@ def run_epoch(model, data, is_train=False, lr=1.0, compute_stats=False):
 
         targets = torch.from_numpy(y.astype(np.int64)).transpose(0, 1).contiguous().to(device)#.cuda()
         tt = torch.squeeze(targets.view(-1, model.batch_size * model.seq_len))
+        tt_2 = torch.squeeze(targets.view(-1, model.batch_size , model.seq_len))
 
         # LOSS COMPUTATION
         # This line currently averages across all the sequences in a mini-batch 
@@ -404,12 +407,11 @@ def run_epoch(model, data, is_train=False, lr=1.0, compute_stats=False):
         # Compute avg loss
         if not is_train and compute_stats:
             for i, _ in enumerate(outputs):
-                for j, _ in enumerate(outputs[i]):
-                    tmp_loss = loss_fn(outputs[i][j])
-                    loss_f = tmp_loss.data.item()
-                    avg_loss[i] = loss_f + avg_loss[i]
-                    counter += 1
-
+                tmp_loss = loss_fn(outputs[i].view(-1, model.vocab_size), tt_2[...,i])
+                loss_f = tmp_loss.data.item()
+                avg_loss[i] = loss_f + avg_loss[i]
+                counter += 1
+        
         loss = loss_fn(outputs.contiguous().view(-1, model.vocab_size), tt)
         costs += loss.data.item() * model.seq_len
         losses.append(costs)
@@ -459,8 +461,8 @@ else:
     num_epochs = args.num_epochs
 
 if args.load_model:
-    print('Loading model from path {}'.format(path))
-    model.load_state_dict(torch.load(path))
+    print('Loading model from path {}'.format(args.load_model))
+    model.load_state_dict(torch.load(args.load_model))
 
 # MAIN LOOP
 for epoch in range(num_epochs):
@@ -472,8 +474,8 @@ for epoch in range(num_epochs):
         # RUN MODEL ON VALIDATION DATA
         val_ppl, val_loss, avg_loss = run_epoch(model, valid_data, compute_stats=True)
 
-        with open('stats.txt') as f:
-            f.write('avg_loss: {}'.format(avg_loss))
+        with open(os.path.join(args.save_dir, 'stats.txt'), 'a') as f_:
+            f_.write('avg_loss: {}'.format(avg_loss))
 
     else:
 
