@@ -89,6 +89,7 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
 
         # Creates hidden layers
         #self.hiddens = [Variable(torch.zeros([self.num_layers, self.batch_size, self.hidden_size], dtype=torch.float32), requires_grad=True) for _ in range(self.seq_len)]
+        self.hiddens = None
 
         self.init_weights_uniform()
         # TODO ========================
@@ -179,7 +180,9 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
 
         #prev_hidden = None
         prev_hidden = hidden
+        hiddens = []
         for i in range(self.seq_len):
+            hiddens.append(prev_hidden)
 
             # Initialize hidden layer for next iteration
             hidden_out = self.init_hidden().to(torch.device('cuda'))
@@ -201,7 +204,7 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
             #self.hidden_outputs.append(Variable(hidden_out, requires_grad=True))
             #prev_hidden = Variable(hidden_out, requires_grad=True)
             prev_hidden = hidden_out
-
+        self.hiddens = hiddens
 
         #return logits.view(self.seq_len, self.batch_size, self.vocab_size), self.hidden_outputs[-1]
         return logits.view(self.seq_len, self.batch_size, self.vocab_size), prev_hidden
@@ -336,12 +339,12 @@ class GRU(nn.Module): # Implement a stacked GRU RNN
         #prev_hidden = None
         hiddens = []
         prev_hidden = hidden
-        hiddens.append(prev_hidden)
         #sigmoid = nn.Sigmoid()
         #tanh = nn.Tanh()
         inputs = self.embedding(inputs)
 
         for i in range(self.seq_len):
+            hiddens.append(prev_hidden)
 
             data = self.dropout(inputs[i])
 
@@ -366,7 +369,6 @@ class GRU(nn.Module): # Implement a stacked GRU RNN
             #self.hidden_outputs.append(Variable(hidden_out, requires_grad=True))
             #prev_hidden = Variable(hidden_out, requires_grad=True)
             prev_hidden = hidden_out
-            hiddens.append(prev_hidden)
         self.hiddens = hiddens
         return logits.view(self.seq_len, self.batch_size, self.vocab_size), prev_hidden
 
