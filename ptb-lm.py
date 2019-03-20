@@ -488,8 +488,9 @@ for epoch in range(num_epochs):
         # RUN MODEL ON VALIDATION DATA
         val_ppl, val_loss, avg_loss = run_epoch(model, valid_data, compute_stats=True)
 
-        with open(os.path.join(args.save_dir, 'stats.txt'), 'a') as f_:
-            f_.write('avg_loss: {}'.format(avg_loss))
+        lc_path = os.path.join(args.save_dir, 'stats.npy')
+        print('\nDONE\n\nSaving learning curves to '+lc_path)
+        np.save(lc_path, {'avg_losses':avg_losses})
 
     else:
 
