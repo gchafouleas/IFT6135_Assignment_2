@@ -124,6 +124,8 @@ parser.add_argument('--save_best', action='store_true',
                     help='save the model for the best validation performance')
 parser.add_argument('--num_layers', type=int, default=2,
                     help='number of LSTM layers')
+parser.add_argument('--load_model', type=str, default=None,
+                    help='Path to saved model that we can load')
 
 # Other hyperparameters you may want to tune in your exploration
 parser.add_argument('--emb_size', type=int, default=200,
@@ -357,7 +359,7 @@ def repackage_hidden(h):
         return tuple(repackage_hidden(v) for v in h)
 
 
-def run_epoch(model, data, is_train=False, lr=1.0):
+def run_epoch(model, data, is_train=False, lr=1.0, compute_stats=False):
     """
     One epoch of training/validation (depending on flag is_train).
     """
@@ -373,6 +375,10 @@ def run_epoch(model, data, is_train=False, lr=1.0):
     costs = 0.0
     iters = 0
     losses = []
+
+    if not is_train and compute_stats:
+        avg_loss = np.empty(seq_len)
+        counter = 0
 
     # LOOP THROUGH MINIBATCHES
     for step, (x, y) in enumerate(ptb_iterator(data, model.batch_size, model.seq_len)):
@@ -394,6 +400,16 @@ def run_epoch(model, data, is_train=False, lr=1.0):
         # and all time-steps of the sequences.
         # For problem 5.3, you will (instead) need to compute the average loss 
         #at each time-step separately. 
+        
+        # Compute avg loss
+        if not is_train and compute_stats:
+            for i, _ in enumerate(outputs):
+                for j, _ in enumerate(outputs[i]):
+                    tmp_loss = loss_fn(outputs[i][j])
+                    loss_f = tmp_loss.data.item()
+                    avg_loss[i] = loss_f + avg_loss[i]
+                    counter += 1
+
         loss = loss_fn(outputs.contiguous().view(-1, model.vocab_size), tt)
         costs += loss.data.item() * model.seq_len
         losses.append(costs)
@@ -414,7 +430,11 @@ def run_epoch(model, data, is_train=False, lr=1.0):
                 print('step: '+ str(step) + '\t' \
                     + 'loss: '+ str(costs) + '\t' \
                     + 'speed (wps):' + str(iters * model.batch_size / (time.time() - start_time)))
-    return np.exp(costs / iters), losses
+
+    if is_train:
+        return np.exp(costs / iters), losses
+    elif not is_train and compute_stats:
+        return np.exp(costs / iters), losses, avg_loss
 
 
 
@@ -438,50 +458,67 @@ if args.debug:
 else:
     num_epochs = args.num_epochs
 
+if args.load_model:
+    print('Loading model from path {}'.format(path))
+    model.load_state_dict(torch.load(path))
+
 # MAIN LOOP
 for epoch in range(num_epochs):
-    t0 = time.time()
-    print('\nEPOCH '+str(epoch)+' ------------------')
-    if args.optimizer == 'SGD_LR_SCHEDULE':
-        lr_decay = lr_decay_base ** max(epoch - m_flat_lr, 0)
-        lr = lr * lr_decay # decay lr if it is time
 
-    # RUN MODEL ON TRAINING DATA
-    train_ppl, train_loss = run_epoch(model, train_data, True, lr)
+    if args.load_model:
 
-    # RUN MODEL ON VALIDATION DATA
-    val_ppl, val_loss = run_epoch(model, valid_data)
+        print('Running saved model')
+
+        # RUN MODEL ON VALIDATION DATA
+        val_ppl, val_loss, avg_loss = run_epoch(model, valid_data, compute_stats=True)
+
+        with open('stats.txt') as f:
+            f.write('avg_loss: {}'.format(avg_loss))
+
+    else:
+
+        t0 = time.time()
+        print('\nEPOCH '+str(epoch)+' ------------------')
+        if args.optimizer == 'SGD_LR_SCHEDULE':
+            lr_decay = lr_decay_base ** max(epoch - m_flat_lr, 0)
+            lr = lr * lr_decay # decay lr if it is time
+
+        # RUN MODEL ON TRAINING DATA
+        train_ppl, train_loss = run_epoch(model, train_data, True, lr)
+
+        # RUN MODEL ON VALIDATION DATA
+        val_ppl, val_loss  = run_epoch(model, valid_data)
 
 
-    # SAVE MODEL IF IT'S THE BEST SO FAR
-    if val_ppl < best_val_so_far:
-        best_val_so_far = val_ppl
-        if args.save_best:
-            print("Saving model parameters to best_params.pt")
-            torch.save(model.state_dict(), os.path.join(args.save_dir, 'best_params.pt'))
-        # NOTE ==============================================
-        # You will need to load these parameters into the same model
-        # for a couple Problems: so that you can compute the gradient 
-        # of the loss w.r.t. hidden state as required in Problem 5.2
-        # and to sample from the the model as required in Problem 5.3
-        # We are not asking you to run on the test data, but if you 
-        # want to look at test performance you would load the saved
-        # model and run on the test data with batch_size=1
+        # SAVE MODEL IF IT'S THE BEST SO FAR
+        if val_ppl < best_val_so_far:
+            best_val_so_far = val_ppl
+            if args.save_best:
+                print("Saving model parameters to best_params.pt")
+                torch.save(model.state_dict(), os.path.join(args.save_dir, 'best_params.pt'))
+            # NOTE ==============================================
+            # You will need to load these parameters into the same model
+            # for a couple Problems: so that you can compute the gradient 
+            # of the loss w.r.t. hidden state as required in Problem 5.2
+            # and to sample from the the model as required in Problem 5.3
+            # We are not asking you to run on the test data, but if you 
+            # want to look at test performance you would load the saved
+            # model and run on the test data with batch_size=1
 
-    # LOC RESULTS
-    train_ppls.append(train_ppl)
-    val_ppls.append(val_ppl)
-    train_losses.extend(train_loss)
-    val_losses.extend(val_loss)
-    times.append(time.time() - t0)
-    log_str = 'epoch: ' + str(epoch) + '\t' \
-            + 'train ppl: ' + str(train_ppl) + '\t' \
-            + 'val ppl: ' + str(val_ppl)  + '\t' \
-            + 'best val: ' + str(best_val_so_far) + '\t' \
-            + 'time (s) spent in epoch: ' + str(times[-1])
-    print(log_str)
-    with open (os.path.join(args.save_dir, 'log.txt'), 'a') as f_:
-        f_.write(log_str+ '\n')
+        # LOC RESULTS
+        train_ppls.append(train_ppl)
+        val_ppls.append(val_ppl)
+        train_losses.extend(train_loss)
+        val_losses.extend(val_loss)
+        times.append(time.time() - t0)
+        log_str = 'epoch: ' + str(epoch) + '\t' \
+                + 'train ppl: ' + str(train_ppl) + '\t' \
+                + 'val ppl: ' + str(val_ppl)  + '\t' \
+                + 'best val: ' + str(best_val_so_far) + '\t' \
+                + 'time (s) spent in epoch: ' + str(times[-1])
+        print(log_str)
+        with open (os.path.join(args.save_dir, 'log.txt'), 'a') as f_:
+            f_.write(log_str+ '\n')
 
 # SAVE LEARNING CURVES
 lc_path = os.path.join(args.save_dir, 'learning_curves.npy')
