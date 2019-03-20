@@ -297,6 +297,8 @@ class GRU(nn.Module): # Implement a stacked GRU RNN
             ]
         )
 
+        self.hiddens = None
+
         # Creates hidden layers
         #self.hiddens = [Variable(torch.zeros([self.num_layers, self.batch_size, self.hidden_size], dtype=torch.float32), requires_grad=True) for _ in range(self.seq_len)]
 
@@ -332,7 +334,9 @@ class GRU(nn.Module): # Implement a stacked GRU RNN
         logits = logits.to(torch.device("cuda"))
 
         #prev_hidden = None
+        hiddens = []
         prev_hidden = hidden
+        hiddens.append(prev_hidden)
         #sigmoid = nn.Sigmoid()
         #tanh = nn.Tanh()
         inputs = self.embedding(inputs)
@@ -362,6 +366,8 @@ class GRU(nn.Module): # Implement a stacked GRU RNN
             #self.hidden_outputs.append(Variable(hidden_out, requires_grad=True))
             #prev_hidden = Variable(hidden_out, requires_grad=True)
             prev_hidden = hidden_out
+            hiddens.append(prev_hidden)
+        self.hiddens = hiddens
         return logits.view(self.seq_len, self.batch_size, self.vocab_size), prev_hidden
 
     def generate(self, input, hidden, generated_seq_len):

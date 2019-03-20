@@ -379,7 +379,7 @@ def run_epoch(model, data, is_train=False, lr=1.0, compute_stats=False):
 
     if not is_train and compute_stats:
         avg_loss = np.empty(model.seq_len)
-        counter = 0
+        avg_grad = np.empty(model.seq_len)
 
     # LOOP THROUGH MINIBATCHES
     avg_loss = np.zeros(model.seq_len)
@@ -406,11 +406,25 @@ def run_epoch(model, data, is_train=False, lr=1.0, compute_stats=False):
         
         # Compute avg loss
         if not is_train and compute_stats:
+            # Problem 5.1
             for i, _ in enumerate(outputs):
                 tmp_loss = loss_fn(outputs[i].view(-1, model.vocab_size), tt_2[...,i])
                 loss_f = tmp_loss.data.item()
                 avg_loss[i] = loss_f + avg_loss[i]
-                counter += 1
+
+            # Problem 5.2
+            last = tt_2.shape[-1]-1
+            tmp_loss = loss_fn(outputs[last].view(-1, model.vocab_size), tt_2[...,last])
+            loss_f = tmp_loss.data.item()
+            loss_f.backward()
+
+            for i,h in enumerate(model.hiddens):
+                if h.grad is not None:
+                    avg_grad[i] += h.grad.data.item()
+                else:
+                    raise Exception('you fucked up')
+
+            #avg_grad[i] = avg_grad + avg_grad[i]
         
         loss = loss_fn(outputs.contiguous().view(-1, model.vocab_size), tt)
         costs += loss.data.item() * model.seq_len
