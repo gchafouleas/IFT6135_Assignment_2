@@ -416,14 +416,12 @@ def run_epoch(model, data, is_train=False, lr=1.0, compute_stats=False):
             last = tt_2.shape[-1]-1
             tmp_loss = loss_fn(outputs[last].view(-1, model.vocab_size), tt_2[...,last])
             loss_f = tmp_loss.data.item()
-            loss_f.backward()
+            tmp_loss.backward()
 
             for i,h in enumerate(model.hiddens):
                 if h.grad is not None:
-                    avg_grad[i] += h.grad.data.item()
-                else:
-                    raise Exception('you fucked up')
-
+                    avg_grad[i] += h.grad.data.item
+                    print(h.grad.data.item)
             #avg_grad[i] = avg_grad + avg_grad[i]
         
         loss = loss_fn(outputs.contiguous().view(-1, model.vocab_size), tt)
@@ -447,10 +445,11 @@ def run_epoch(model, data, is_train=False, lr=1.0, compute_stats=False):
                     + 'loss: '+ str(costs) + '\t' \
                     + 'speed (wps):' + str(iters * model.batch_size / (time.time() - start_time)))
 
-    if is_train:
-        return np.exp(costs / iters), losses
-    elif not is_train and compute_stats:
+    if not is_train and compute_stats:
+        print("valid with stats")
         return np.exp(costs / iters), losses, avg_loss
+    else:
+        return np.exp(costs / iters), losses
 
 
 
