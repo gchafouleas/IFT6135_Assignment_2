@@ -454,9 +454,9 @@ class MultiHeadedAttention(nn.Module):
         # and nn.Dropout
         self.sequence_layers = nn.ModuleList()
         self.sequence_layers.extend(clones(nn.ModuleList([
-                nn.Linear(n_units, self.d_k),
-                nn.Linear(n_units, self.d_k),
-                nn.Linear(n_units, self.d_k),
+                nn.Linear(n_units, self.d_k, bias=False),
+                nn.Linear(n_units, self.d_k, bias=False),
+                nn.Linear(n_units, self.d_k, bias=False),
                 nn.Dropout(dropout)]
         ), n_heads))
 
@@ -476,19 +476,13 @@ class MultiHeadedAttention(nn.Module):
         # generating the "attention values" (i.e. A_i in the .tex)
         # Also apply dropout to the attention values.
         attention_i = []
-        #mask = mask.to(torch.device("cuda:0" if torch.cuda.is_available() else "cpu"), dtype=torch.float32)
         for head in range(self.n_heads):
             query_i = self.sequence_layers[head][0](query)
             key_i = self.sequence_layers[head][1](key)
             value_i = self.sequence_layers[head][2](value)
             x = torch.matmul(query_i, key_i.transpose(-2,-1))/math.sqrt(self.d_k)
-            #x_tild = torch.mul(x,mask) - ((10**9)*(1-mask))
             x_tild = x
-            #x_tild[~mask] = -1e9
-            #mask = mask.unsqueeze(1)
             x_tild = x_tild.masked_fill(mask == 0, -10**9)
-            #x_tild[mask] = x[mask]
-            #x_tild[~mask] = -(10)**9
             score_i = F.softmax(x_tild, dim=-1)
             score_i = self.sequence_layers[head][3](score_i)
             h_i = torch.matmul(score_i, value_i)
