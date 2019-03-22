@@ -403,7 +403,7 @@ def run_epoch(model, data, is_train=False, lr=1.0, compute_stats=False):
         # and all time-steps of the sequences.
         # For problem 5.3, you will (instead) need to compute the average loss 
         #at each time-step separately. 
-        
+        count += 1
         # Compute avg loss
         if not is_train and compute_stats:
             # Problem 5.1

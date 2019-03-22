@@ -8,14 +8,13 @@ def get_values(path):
     x = np.load(lc_path)[()]
 
     train_loss = []
-    print(x)
-    avg_loss = x['avg_loss']
-
+    avg_loss = x['avg_losses']
     return avg_loss
 
-def plot_graphs(train_loss, path, model_type = "RNN"):
+def plot_graph(train_loss, path, model_type = "RNN"):
 
     plt.plot(train_loss, 'o-')
+    
     plt.ylabel("loss")
     plt.xlabel("time steps")
     plt.title(model_type + " - Loss Per time step")
@@ -23,16 +22,6 @@ def plot_graphs(train_loss, path, model_type = "RNN"):
     plt.clf()
 
 #loading data from RNN
-lc_path = "stats/stats_RNN.txt"
+lc_path = "RNN_4.1/Average_Loss.npy"
 avg_loss = get_values(lc_path)
-plot_graphs(avg_loss, "RNN_4.1/")
-
-#loading data from GRU
-lc_path = "stats/stats.txt"
-avg_loss = get_values(lc_path)
-#plot_graphs(avg_loss, "RNN_4.1/")
-
-#loading data from TRANSFORMER
-lc_path = "stats/stats.txt"
-avg_loss = get_values(lc_path)
-#plot_graphs(avg_loss, "RNN_4.1/")
+plot_graph(avg_loss, "RNN_4.1/")
