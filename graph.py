@@ -5,7 +5,7 @@ import re
 import pandas as pd
 
 def get_values(path, file_path):
-    x = np.load(lc_path)[()]
+    x = np.load(path)[()]
     times = []
     with open(file_path, 'rt') as file:
        time = 0
