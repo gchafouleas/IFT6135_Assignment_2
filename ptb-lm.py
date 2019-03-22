@@ -383,6 +383,7 @@ def run_epoch(model, data, is_train=False, lr=1.0, compute_stats=False):
 
     # LOOP THROUGH MINIBATCHES
     avg_loss = np.zeros(model.seq_len)
+    count = 0
     for step, (x, y) in enumerate(ptb_iterator(data, model.batch_size, model.seq_len)):
         if args.model == 'TRANSFORMER':
             batch = Batch(torch.from_numpy(x).long().to(device))
@@ -447,7 +448,7 @@ def run_epoch(model, data, is_train=False, lr=1.0, compute_stats=False):
 
     if not is_train and compute_stats:
         print("valid with stats")
-        return np.exp(costs / iters), losses, avg_loss
+        return np.exp(costs / iters), losses, avg_loss/count
     else:
         return np.exp(costs / iters), losses
 
@@ -487,9 +488,9 @@ for epoch in range(num_epochs):
         # RUN MODEL ON VALIDATION DATA
         val_ppl, val_loss, avg_loss = run_epoch(model, valid_data, compute_stats=True)
 
-        lc_path = os.path.join(args.save_dir, 'stats.npy')
+        lc_path = os.path.join(args.save_dir, 'Average_Loss.npy')
         print('\nDONE\n\nSaving learning curves to '+lc_path)
-        np.save(lc_path, {'avg_losses':avg_losses})
+        np.save(lc_path, {'avg_losses':avg_loss})
 
     else:
 
