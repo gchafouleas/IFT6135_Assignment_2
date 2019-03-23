@@ -234,7 +234,26 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
             - Sampled sequences of tokens
                         shape: (generated_seq_len, batch_size)
         """
-       
+        samples = torch.zeros([generated_seq_len, self.batch_size])
+        samples = samples.to(torch.device("cuda"))
+        prev_hidden = hidden
+        for i in range(generated_seq_len):
+
+            # Initialize hidden layer for next iteration
+            hidden_out = self.init_hidden().to(torch.device('cuda'))
+            data = self.embedding(input)
+            for j in range(self.num_layers):
+                data = self.sequence_layers[j][0](data) + self.sequence_layers[j][1](prev_hidden[j])
+                data = self.sequence_layers[j][2](data)
+                hidden_out[j] = data
+
+            data = self.sequence_ouput[0](data)
+            softmax = nn.Softmax(dim=0)
+            output = softmax(data)
+            _, predicted = torch.max(output.data,dim=-1)
+            samples[i] = predicted.data
+            input = predicted.data
+            prev_hidden = hidden_out
         return samples
 
 
@@ -374,6 +393,28 @@ class GRU(nn.Module): # Implement a stacked GRU RNN
 
     def generate(self, input, hidden, generated_seq_len):
         # TODO ========================
+        samples = torch.zeros([generated_seq_len, self.batch_size])
+        samples = samples.to(torch.device("cuda"))
+        prev_hidden = hidden
+        for i in range(generated_seq_len):
+
+            # Initialize hidden layer for next iteration
+            hidden_out = self.init_hidden().to(torch.device('cuda'))
+            data = self.embedding(input)
+            for j in range(self.num_layers):
+                reset = self.sequence_layers[j][7](self.sequence_layers[j][0](data) + self.sequence_layers[j][1](prev_hidden[j]))
+                forget =self.sequence_layers[j][8](self.sequence_layers[j][2](data) + self.sequence_layers[j][3](prev_hidden[j]))
+                tild_hidden = self.sequence_layers[j][9](self.sequence_layers[j][4](data) + self.sequence_layers[j][5](torch.mul(reset,prev_hidden[j])))
+                data = torch.mul((1 - forget),prev_hidden[j]) + torch.mul(forget,tild_hidden)
+                hidden_out[j] = data
+
+            data = self.sequence_ouput[0](data)
+            softmax = nn.Softmax(dim=0)
+            output = softmax(data)
+            _, predicted = torch.max(output.data,dim=-1)
+            samples[i] = predicted.data
+            input = predicted.data
+            prev_hidden = hidden_out
         return samples
 
 
