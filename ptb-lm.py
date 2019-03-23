@@ -126,6 +126,10 @@ parser.add_argument('--num_layers', type=int, default=2,
                     help='number of LSTM layers')
 parser.add_argument('--load_model', type=str, default=None,
                     help='Path to saved model that we can load')
+parser.add_argument('--generate_sequence', type=bool, default=False,
+                    help='Determine if generate sequences ')
+parser.add_argument('--generate_sequence_len', type=int, default=35,
+                    help='Determine the lenght of generated sequences ')
 
 # Other hyperparameters you may want to tune in your exploration
 parser.add_argument('--emb_size', type=int, default=200,
@@ -284,7 +288,6 @@ train_data, valid_data, test_data, word_to_id, id_2_word = raw_data
 vocab_size = len(word_to_id)
 print('  vocabulary size: {}'.format(vocab_size))
 
-
 ###############################################################################
 # 
 # MODEL SETUP
@@ -419,10 +422,11 @@ def run_epoch(model, data, is_train=False, lr=1.0, compute_stats=False):
             loss_f = tmp_loss.data.item()
             tmp_loss.backward()
 
-            for i,h in enumerate(model.hiddens):
-                if h.grad is not None:
-                    avg_grad[i] += h.grad.data.item
-                    print(h.grad.data.item)
+            if args.model != 'TRANSFORMER':
+                for i,h in enumerate(model.hiddens):
+                    if h.grad is not None:
+                        avg_grad[i] += h.grad.data.item
+                        print(h.grad.data.item)
             #avg_grad[i] = avg_grad + avg_grad[i]
         
         loss = loss_fn(outputs.contiguous().view(-1, model.vocab_size), tt)
@@ -477,6 +481,25 @@ else:
 if args.load_model:
     print('Loading model from path {}'.format(args.load_model))
     model.load_state_dict(torch.load(args.load_model))
+
+if args.load_model and args.generate_sequence:
+    hidden = model.init_hidden()
+    hidden = hidden.to(device)
+    word_id = torch.zeros([args.generate_sequence_len, args.batch_size])
+    input = torch.zeros([model.batch_size])
+    with open (os.path.join(args.save_dir, 'sequences.txt'), 'a') as f_:
+        for step, (x, y) in enumerate(ptb_iterator(train_data, model.batch_size, 1)):
+            inputs = torch.from_numpy(x.astype(np.int64)).transpose(0, 1).contiguous().to(device)
+            print(inputs)
+            word_id = model.generate(inputs[0], hidden.to(device), args.generate_sequence_len)
+            #print("sequence start")
+            word_id = word_id.transpose(0,1)
+            for batch in word_id:
+                sequence = ""
+                f_.write('Sequence starts\n')
+                for word in batch:                
+                    sequence += " "+ id_2_word[int(word)]
+                f_.write(sequence+ '\n')
 
 # MAIN LOOP
 for epoch in range(num_epochs):

@@ -76,9 +76,9 @@ def plot_graphs(train_loss, valid_loss, train_ppl, valid_ppl, times, path, model
 
     plt.plot(times, train_ppl, 'o-')
     plt.plot(times, valid_ppl, 'o-')
-    plt.ylabel("Loss")
+    plt.ylabel("ppl")
     plt.xlabel("wall clock time")
-    plt.title(model_type + " - Loss Per wall clock")
+    plt.title(model_type + " - PPL Per wall clock")
     plt.legend(labels = ["train: {}".format(smallest_train_ppl), "valid: {}".format(smallest_valid_ppl)])
     plt.savefig(path + model_type + '_ppl_clock.png', bbox_inches='tight')
     plt.clf()
@@ -87,19 +87,19 @@ def plot_graphs(train_loss, valid_loss, train_ppl, valid_ppl, times, path, model
 lc_path = "GRU_SGD_4.2/learning_curves.npy"
 filepath = "GRU_SGD_4.2/log.txt"
 train_loss, valid_loss_RNN, train_ppl, valid_ppl_RNN, times = get_values(lc_path, filepath)
-#plot_graphs(train_loss, valid_loss_RNN, train_ppl, valid_ppl_RNN, times, "RNN_SGD_LR_4.2/")
+plot_graphs(train_loss, valid_loss_RNN, train_ppl, valid_ppl_RNN, times, "GRU_SGD_4.2/", "GRU")
 
 #loading data from GRU
 lc_path = "GRU_4.1/learning_curves.npy"
 filepath = "GRU_4.1/log.txt"
 train_loss, valid_loss_GRU, train_ppl, valid_ppl_GRU, times = get_values(lc_path, filepath)
-#plot_graphs(train_loss, valid_loss_GRU, train_ppl, valid_ppl_GRU, times, "GRU_SGD_4.2/" ,"GRU")
+plot_graphs(train_loss, valid_loss_GRU, train_ppl, valid_ppl_GRU, times, "GRU_4.1/" ,"GRU")
 
 #loading data from TRANSFORMER
 lc_path = "GRU_Adam_4.2/learning_curves.npy"
 filepath = "GRU_Adam_4.2/log.txt"
 train_loss, valid_loss_TR, train_ppl, valid_ppl_TR, times = get_values(lc_path, filepath)
-#plot_graphs(train_loss, valid_loss_TR, train_ppl, valid_ppl_TR, times, "TRANSFORMER")
+plot_graphs(train_loss, valid_loss_TR, train_ppl, valid_ppl_TR, times, "GRU_Adam_4.2/","GRU")
 
 #plot all architecture graphs
 plt.plot(times, valid_ppl_RNN, 'o-')
@@ -109,7 +109,7 @@ plt.ylabel("ppl")
 plt.xlabel("wall clock time")
 plt.title("All - Loss Per wall clock")
 plt.legend(labels = ["SGD", "SGD Momemtum", "Adam"])
-plt.savefig('plots/GRU_4_2_all_loss_clock.png', bbox_inches='tight')
+#plt.savefig('plots/RNN_4_2_all_loss_clock.png', bbox_inches='tight')
 plt.clf()
 
 plt.plot(valid_ppl_RNN, 'o-')
@@ -119,5 +119,5 @@ plt.ylabel("ppl")
 plt.xlabel("epoch")
 plt.title("All - Loss Per epoch")
 plt.legend(labels = ["SGD", "SGD Momemtum", "Adam"])
-plt.savefig('plots/GRU_4_2_all_loss_epoch.png', bbox_inches='tight')
+#plt.savefig('plots/_4_2_all_loss_epoch.png', bbox_inches='tight')
 plt.clf()
