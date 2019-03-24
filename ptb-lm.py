@@ -88,6 +88,7 @@ import torch.nn
 from torch.autograd import Variable
 import torch.nn as nn
 import numpy
+import random
 np = numpy
 
 # NOTE ==============================================
@@ -487,19 +488,21 @@ if args.load_model and args.generate_sequence:
     hidden = hidden.to(device)
     word_id = torch.zeros([args.generate_sequence_len, args.batch_size])
     input = torch.zeros([model.batch_size])
+    count = 0 
+    words_index = random.sample(range(0, 10000), 20)
+    words = torch.LongTensor(words_index).to(device)
     with open (os.path.join(args.save_dir, 'sequences.txt'), 'a') as f_:
-        for step, (x, y) in enumerate(ptb_iterator(train_data, model.batch_size, 1)):
-            inputs = torch.from_numpy(x.astype(np.int64)).transpose(0, 1).contiguous().to(device)
-            print(inputs)
-            word_id = model.generate(inputs[0], hidden.to(device), args.generate_sequence_len)
-            #print("sequence start")
-            word_id = word_id.transpose(0,1)
-            for batch in word_id:
-                sequence = ""
-                f_.write('Sequence starts\n')
-                for word in batch:                
-                    sequence += " "+ id_2_word[int(word)]
-                f_.write(sequence+ '\n')
+        f_.write('Generating sequences of '+ str(args.generate_sequence_len) + ' for model '+ args.model +'\n')
+        word_id = model.generate(words, hidden.to(device), args.generate_sequence_len)
+        word_id = word_id.transpose(0,1)
+        id = 0
+        for batch in word_id:
+            sequence = ""
+            f_.write('Sequence starts : initial word :' + id_2_word[int(words[id].data)] +'\n')
+            for word in batch:                
+                 sequence += " "+ id_2_word[int(word)]
+            f_.write(sequence+ '\n')
+            id+=1
 
 # MAIN LOOP
 for epoch in range(num_epochs):
