@@ -179,13 +179,13 @@ class RNN(nn.Module): # Implement a stacked vanilla RNN with Tanh nonlinearities
         logits = logits.to(torch.device("cuda"))
 
         #prev_hidden = None
-        prev_hidden = hidden
+        prev_hidden = Variable(hidden, requires_grad=True)
         hiddens = []
         for i in range(self.seq_len):
             hiddens.append(prev_hidden)
 
             # Initialize hidden layer for next iteration
-            hidden_out = self.init_hidden().to(torch.device('cuda'))
+            hidden_out = Variable(self.init_hidden().to(torch.device('cuda')), requires_grad=True)
             data = self.embedding(inputs[i])
             data = self.dropout(data)
             for j in range(self.num_layers):
@@ -323,6 +323,7 @@ class GRU(nn.Module): # Implement a stacked GRU RNN
 
         # Creates hidden layers
         #self.hiddens = [Variable(torch.zeros([self.num_layers, self.batch_size, self.hidden_size], dtype=torch.float32), requires_grad=True) for _ in range(self.seq_len)]
+        self.tst = []
 
         self.init_weights_uniform()
 
@@ -357,7 +358,7 @@ class GRU(nn.Module): # Implement a stacked GRU RNN
 
         #prev_hidden = None
         hiddens = []
-        prev_hidden = hidden
+        prev_hidden = Variable(hidden, requires_grad=True)
         #sigmoid = nn.Sigmoid()
         #tanh = nn.Tanh()
         inputs = self.embedding(inputs)
@@ -368,7 +369,7 @@ class GRU(nn.Module): # Implement a stacked GRU RNN
             data = self.dropout(inputs[i])
 
             # Initialize hidden layer for next iteration
-            hidden_out = self.init_hidden().to(torch.device('cuda'))
+            hidden_out = Variable(self.init_hidden().to(torch.device('cuda')), requires_grad=True)
 
             for j in range(self.num_layers):
                 #data = self.sequence_layers[j][0](data) + self.sequence_layers[j][1](self.hidden_outputs[i][j])
@@ -378,6 +379,7 @@ class GRU(nn.Module): # Implement a stacked GRU RNN
                 data = torch.mul((1 - forget),prev_hidden[j]) + torch.mul(forget,tild_hidden)
                 hidden_out[j] = data
                 data = self.sequence_layers[j][6](data)
+                self.tst.append(data)
             #print(data)
             #print('-----------------------------------------------------')
 
