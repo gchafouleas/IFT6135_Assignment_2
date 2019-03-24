@@ -1,0 +1,83 @@
+Generating sequences of 35 for model GRU
+Sequence starts : initial word :charleston
+ administration voted february N p.m. est on pbs grounds nov. 300-a-share election deadline expires nov. february deadline deadline dec. N deadline dec. N deadline article ii budget appropriations bill approved hud appropriations committees committees apply
+Sequence starts : initial word :aftermath
+ b week crash whether happened wrong happen struck germany night my resignation resignation seems likely to happen ahead helmut constituents krenz seemed doubt george krenz knows how happened i 'm convinced nobody 'm going forward
+Sequence starts : initial word :pitches
+ familiar with beijing 300-day estimate ministry hoped that pwa wo n't disclose details until terms ranging from datapoint lawsuits until summer delays caused by osha close underwriter hewlett-packard co adding others 're hopeful that allows
+Sequence starts : initial word :permits
+ grown closer consecutive month later than usual decade ago researchers familiar with wertheim grenfell & co japan sees example sony corp. believes sony might introduce bankruptcy-law proceedings valued margins easier settlement involving instance machinists expect
+Sequence starts : initial word :finished
+ moderately higher levels higher than usual intraday low session mixed highs brussels milan composite trading session lower intraday highs session finished moderately thin intraday thin session mixed dealings dealers watched blue-chip issues dealers watched blue-chip
+Sequence starts : initial word :surely
+ be able to send additional debts unless necessary want access lines structures can expand them cut goods costs reduce amounts heat items perhaps reduce goods costs continue to reduce costs limit costs improve goods flows
+Sequence starts : initial word :exclude
+ insurance properties tend to invest aside boost subsidies ' own level equal minimum wage ceiling plus employers hanover trust co agencies prefer borrowed benefits totaling one-third percentage point above maturity maturity maturity above maturity maturity
+Sequence starts : initial word :intense
+ emphasis on behalf patients receiving poor women know whether you 're doing afraid everything else somebody 're going forward anymore readers 're rushing toward combat ways anymore parents want ways seem likely to catch up
+Sequence starts : initial word :shuttle
+ hugo motor co. santa clara semiconductor maker sustained structural damage sustained damage damage commuters shut stearns buildings broken damage buildings buildings buildings damage coast buildings damaged buildings damaged water damage coast sand operational cruz water
+Sequence starts : initial word :evaluate
+ icahn heads sci tv buy-out buy-out brothers restructure sci tv buy-out tv tv buy-out buy-out sci tv buy-out buy-out buy-out investor gillett brothers plc sci tv buy-out buy-out investor spielvogel bates inc ii buy-out brothers
+Sequence starts : initial word :recommended
+ board approval consisting option guarantees needed requirements exceed certain types of watches placed convertible preferred stock exchange collateral hands b dividend option payable nov. N page-one est nov. days date deadline nov. april cents est
+Sequence starts : initial word :incinerator
+ burnham lambert inc. minneapolis machines corp. hewlett-packard co. hewlett-packard co. hewlett-packard co. palo alto calif. maker annual sales refunding chain annual partnership a$ N billion nyse minor damage headquarters minor damage headquarters aircraft headquarters power
+Sequence starts : initial word :mather
+ week rep. edward kennedy d. mass chairman ralph e. trotter iii jr. chairman bush chief executive officer kenneth s. taylor iii director old taylor director warren darman d. ark d. ark vice president quayle treasurer
+Sequence starts : initial word :fault
+ code been instrumental upon surprising northern california supreme court ruling webster proceedings ruled guilty judges judges judges deny rico defendants judges defendants judges oppose defendants hanover lawyers familiar with defendants hanover lawyers charging criminal defendants
+Sequence starts : initial word :explains
+ paul dingell chief economist officer quayle upham & mather association specializing margins margins comment ago dentsu officials insist they 're reluctant to attract clients interested among clients trying to cope with future reasons besides acquisitions
+Sequence starts : initial word :britain
+ jones largest steelmaker operates bloomingdale 's second-largest steelmaker operates merchant banking exposures ltd hands drexel burnham lambert inc. greenwich conn. conn. thrift banking firm subsidiary ltd magazine traub campeau co. dallas natwest bank ag ltd
+Sequence starts : initial word :requests
+ for comment else wanted to avoid specific penalties available next week alone begin showing unfair problems signs requirements apply steps available transportation department spokesman said adding hiroshima governments require fed approval process guarantees required approval
+Sequence starts : initial word :finland
+ plc germany acquire saab co. slashed third-quarter net income edged off # N million or c$ pence a share compared with year-earlier year-ago year-ago period outstanding guilders c$ tripled million or # # a share
+Sequence starts : initial word :distribution
+ practices vary widely watched location joel n. devoe jr. vice president finance minister quayle dover dover chicago mercantile exchange composite trading geneva <eos> trinity telesis cos. menlo park calif. provider electronics retailer annual sales edged
+Sequence starts : initial word :refrigerators
+ months old lives respectively pages $ N million bottle amount capped one-year rowe bids totaling ramada lehman hutton inc <eos> holiday cruise lines includes chevrolet electronic parts systems drives marketing machines including toshiba corp. hewlett-packard
+
+Generating sequences of 70 for model GRU
+Sequence starts : initial word :vetoed
+ by a.c. quina jr. deputy president judiciary subcommittee asking him veto jurors know whether you 're doing you 're doing you 're going wrong anymore adds us always tell us you 're going forward anymore you 're going forward anymore you 're going going to tell things you 're going going anymore 'll ask why you 're going wrong stupid your argument you 'll tell you 're going forward your
+Sequence starts : initial word :build
+ instance happens beyond compaq broadcasting co japan downgraded usx cruise lines maker estate ownership systems inc <eos> pwa expects record pretax profit substantially exceed # between million fiscal year ending june june ending june october rise us$ # million # # # N billion ounce # # # # billion billion # # billion # # billion # # billion # # billion # # billion # # billion #
+Sequence starts : initial word :sentencing
+ flow into september tons economists say investors expect quick positions associated with market-makers hanover buy-outs alan wohlstetter believes daffynition temperatures become highly lucrative ones showing acquisitions speculation that otherwise involve particular amounts heat capacity occurred moreover scientists contend how much impact reflects significant impact margins may affect inflation flows significant amounts capacity impact sheet conditions tend swiftly slowdown normally means specific demand costs faster than hurricane hugo hugo hugo hugo
+Sequence starts : initial word :spoken
+ toward family agencies ' ability to obtain advantage of rape incest incest incest pages older men aged prison war surgery fly refuge adjusters turned away into hypoglycemia incest surgery walls walls walls walls walls walls walls walls walls walls walls walls walls walls walls walls walls walls walls walls walls walls sand adjustable cholesterol bank-backed cosmetics cities canada hughes outlets here 'll be able processing delivery capacity spot terms are
+Sequence starts : initial word :evil
+ condition becomes subject to execution person familiar with wertheim spielvogel bates wedd attorney baltimore d.c. adviser baltimore brothers brothers inc ii trial judiciary committee guidelines committee guidelines committee seeks comment requiring filing leval fitzwater denied behalf cases violate civil cases violations violations concerning racketeering crimes violations commission antar prosecutors argue that defendants require lawyers alike alike filing false judicial racketeering code liable prosecutors seeking criminal defendants ' racketeering racketeering racketeering
+Sequence starts : initial word :utilities
+ pay off one-third hundred pounds ounces via daiwa europe ltd code speculators build farmers ' gamble car makers notably tokyo motor co western giants build ford motor corp. toyota motor co. toyota motor co. gm motor francisco luxury auto maker toyota motor auto makers ford motor auto maker gm motor luxury auto makers toyota motor motors toyota motor corp. chrysler corp. saab motor corp. fiat motor lambert luxury auto maker
+Sequence starts : initial word :criticisms
+ of rape & gamble co. unveiled boston corp. subsidiary mae acquire kodak corp. subsidiary mae acquire american express co. unit acquired lockheed corp <eos> quantum cruise lines distributes electronic parts services systems services network electronic computers drives hewlett-packard co. hewlett-packard co. hewlett-packard fargo & casualty association filling desktop computers drives computers drives data computers software software system computers hewlett-packard chips hewlett-packard displays inc plus digital equipment machines drives hewlett-packard co.
+Sequence starts : initial word :scenario
+ N million tons respectively eurobonds due october summer november N p.m. est force francs maturity amount yen yielding N yen annually each week ended sept. march 300-a-share lowest compound yield us$ maturity billion compared with one-third billion lire 10-year gap deficit than hurricane hugo hugo hurricane hugo hugo hugo hugo carolinas hurricane hugo hugo earthquake hugo damage carolina earthquake hugo caribbean disaster damage bonds tentatively priced primarily expected flow six-month
+Sequence starts : initial word :full-year
+ earnings per share attributed somewhat weakening demand outlook than hurricane hugo motor hugo western steel crude gas production crude oil prices rebounded modestly crude oil prices recovered heating oil prices rebounded firmer fears wellington damage rebounded firmer currency damage brussels currency damage brussels brussels brussels brussels brussels seoul taipei wellington seoul seoul seoul seoul geneva geneva geneva geneva via baldwin bank-backed economic affairs referring widely source location location location eurodollars
+Sequence starts : initial word :walker
+ vice president quayle quayle affairs succeeding walter robinson iii who follows retiring positions posts retiring chief executive officer succeeding roger s. sutton jr. retired vice president quayle treasurer succeeding walter jordan formerly senior vice president treasurer succeeding roger s. jordan formerly senior vice president treasurer succeeding michael s. sutton formerly executive vice president treasurer becomes named chief financial officer effective sept. 1960s succeeding maidenform remains retiring senior vice president treasurer
+Sequence starts : initial word :woo
+ banking firm thinks gerald p. roberts jr. managing director old chief economist officer dover resigned formerly position formerly chief executive officer succeeding ted whittington who resigned retirement positions succeeded named chief executive officer succeeding roger w. sutton jr. retired vice presidents officer succeeding walter i. sutton jr. retired vice presidents officer succeeding frank p. sutton jr. retired bearings formerly president ralph penn jr. vice president finance affairs succeeding walter s.
+Sequence starts : initial word :thatcher
+ administration decided whether poland wants hungary hungary hungary hungary hungary hungary hungary hungary hungary hungary ortega hungary ortega hungary voted february february weekend beijing ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega ortega
+Sequence starts : initial word :ban
+ on pbs circumstances rather than double hurricane hugo arise rather than usual ones gathering immune response attendants execution person believe ms. volokh believes she believes she believes her husband husband her husband she feels her husband husband her husband her husband husband her husband husband her husband her husband she 'd resign her husband her husband husband her husband husband her husband husband her husband husband her husband husband her
+Sequence starts : initial word :racial
+ rican pacific realty unit completed santa fe pacific realty estate offering santa fe pacific realty insurance realty calif. santa fe pacific realty estate realty realty arm santa fe pacific realty fund pacific realty estate realty estate portfolio fund trust fund fund fund fund awarded united airlines parent ual corp. composite trading commission valued volume option shares traded convertible preferred shares equal shares via edisto burnham lambert inc <eos> blockbuster entertainment
+Sequence starts : initial word :imo
+ industries ltd. posted net income slid sharply robust cents quarterly loss substantially below year-earlier levels reflecting continuing strength margins below depreciation chemicals sector chemicals operations net income aided by continuing factors totaling less-developed countries offset third-quarter results totaling discontinued cents earnings share compared with year-earlier year-ago year-ago quarter net income edged fargo analysts ' forecasts forecasts margins forecasts reflected strong results particularly sluggish results associated with prolonged 300-day estimate margins
+Sequence starts : initial word :importing
+ oct. N page-one article est oct. a.m page-one article est est nov. p.m. est nov. 300-a-share est est dec. 300-a-share page-one article est nov. 300-a-share article est march p.m. est est est nov. a.m est est nov. pbs est est nov. a.m est est nov. p.m. est nov. p.m. est est est nov. p.m. est nov. p.m. est nov. p.m. est est est nov. p.m. est est nov. p.m. est
+Sequence starts : initial word :philippines
+ filed suit against delaware chancery court charging drexel burnham lambert inc. consented to obtain bankruptcy-law proceedings filed suit filings charging drexel burnham lambert inc. goldman sachs & sons inc. greenwich conn. conn. kidder peabody & sons inc firm semel drexel burnham lambert inc. goldman sachs & sons inc. greenwich conn. kidder peabody & sons inc. goldman sachs & sons salomon brothers inc. goldman sachs & sons salomon brothers inc salomon
+Sequence starts : initial word :empty
+ women 'm skeptical old guard seems longer shape anything else happens anything else seems likely quite catch itself quite surprising surprising truth boomers 've gotten ideas ideas like becoming successful image loyalty toward powerful culture wines beautiful ones feel beautiful ones ones tend easily cope with disabilities degree pressing consequences seem likely to speak beyond non-violent truth rather than ever send us easy policies thus send movies clear specific kids
+Sequence starts : initial word :prone
+ to obtain additional debts ' own contribution practices then provide substantial benefits benefits load points far below extent specific conditions must ensure default rates affect deposits discrepancies between 13-week parties brokers specified returns recapitalization deposits returns flow amount practices vary widely attractive effect maturity vary calculated by widespread corporations corporations corporations surveyed irs cds inflows cds typically allow banks prefer reasonable loans usually reduce cds discrepancies cds transferred loans paying
+Sequence starts : initial word :cabrera
+ expects to continue shipping next year unless everybody else stopped going forward except soon if campeau wo n't announce any buyer until saab expects presence else akzo expects discussions with saab motor co adding discussions between qintex australia qintex australia qintex australia qintex australia ltd. qintex australia australia qintex australia ltd. qintex australia ltd. qintex australia ltd. qintex australia ltd. qintex australia ltd. qintex australia ltd. qintex australia australia qintex
