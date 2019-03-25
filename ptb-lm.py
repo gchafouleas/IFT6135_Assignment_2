@@ -1,4 +1,3 @@
-#!/bin/python
 # coding: utf-8
 
 # Code outline/scaffold for 
@@ -127,6 +126,7 @@ parser.add_argument('--num_layers', type=int, default=2,
                     help='number of LSTM layers')
 parser.add_argument('--load_model', type=str, default=None,
                     help='Path to saved model that we can load')
+parser.add_argument('--avg_grad', type=bool, default=False, help='Avg grad.')
 parser.add_argument('--generate_sequence', type=bool, default=False,
                     help='Determine if generate sequences ')
 parser.add_argument('--generate_sequence_len', type=int, default=35,
@@ -364,7 +364,7 @@ def repackage_hidden(h):
         return tuple(repackage_hidden(v) for v in h)
 
 
-def run_epoch(model, data, is_train=False, lr=1.0, compute_stats=False):
+def run_epoch(model, data, is_train=False, lr=1.0, compute_stats=False, comp_avg_grad=False):
     """
     One epoch of training/validation (depending on flag is_train).
     """
@@ -387,6 +387,7 @@ def run_epoch(model, data, is_train=False, lr=1.0, compute_stats=False):
 
     # LOOP THROUGH MINIBATCHES
     avg_loss = np.zeros(model.seq_len)
+    avg_grad = np.zeros(model.seq_len)
     count = 0
     for step, (x, y) in enumerate(ptb_iterator(data, model.batch_size, model.seq_len)):
         if args.model == 'TRANSFORMER':
@@ -397,7 +398,7 @@ def run_epoch(model, data, is_train=False, lr=1.0, compute_stats=False):
             inputs = torch.from_numpy(x.astype(np.int64)).transpose(0, 1).contiguous().to(device)#.cuda()
             model.zero_grad()
             hidden = repackage_hidden(hidden)
-            outputs, hidden = model(inputs, hidden.to(device))
+            outputs,hidden = model(inputs, hidden.to(device))
 
         targets = torch.from_numpy(y.astype(np.int64)).transpose(0, 1).contiguous().to(device)#.cuda()
         tt = torch.squeeze(targets.view(-1, model.batch_size * model.seq_len))
@@ -417,18 +418,21 @@ def run_epoch(model, data, is_train=False, lr=1.0, compute_stats=False):
                 loss_f = tmp_loss.data.item()
                 avg_loss[i] = loss_f + avg_loss[i]
 
-            # Problem 5.2
-            last = tt_2.shape[-1]-1
-            tmp_loss = loss_fn(outputs[last].view(-1, model.vocab_size), tt_2[...,last])
-            loss_f = tmp_loss.data.item()
-            tmp_loss.backward()
-
-            if args.model != 'TRANSFORMER':
-                for i,h in enumerate(model.hiddens):
-                    if h.grad is not None:
-                        avg_grad[i] += h.grad.data.item
-                        print(h.grad.data.item)
-            #avg_grad[i] = avg_grad + avg_grad[i]
+            if comp_avg_grad:
+                # Problem 5.2
+                last = tt_2.shape[-1]-1
+                tmp_loss = loss_fn(outputs[last].view(-1, model.vocab_size), tt_2[...,last])
+                #tmp_loss = loss_fn(outputs.contiguous().view(-1, model.vocab_size), tt)
+                loss_f = tmp_loss.data.item()
+                #tmp_loss.backward()
+                if args.model != 'TRANSFORMER':
+                    for i,h in enumerate(model.hiddens):
+                        print('computing {}'.format(i))
+                        tst = torch.autograd.grad(tmp_loss, h, retain_graph=True)
+                        avg_grad[i] += np.linalg.norm(tst[0].cpu().numpy())
+                        #if h.grad is not None:
+                        #    avg_grad[i] += tst.grad.data.item
+                return avg_grad
         
         loss = loss_fn(outputs.contiguous().view(-1, model.vocab_size), tt)
         costs += loss.data.item() * model.seq_len
@@ -509,10 +513,17 @@ for epoch in range(num_epochs):
 
     if args.load_model:
 
+        if args.avg_grad:
+            avg_grad = run_epoch(model, valid_data, compute_stats=True, comp_avg_grad=True)
+            lc_path = os.path.join(args.save_dir, 'Average_Grad.npy')
+            print('\nDONE\n\nSaving average grad to '+lc_path)
+            np.save(lc_path, {'avg_grad':avg_grad})
+            break
+
         print('Running saved model')
 
         # RUN MODEL ON VALIDATION DATA
-        val_ppl, val_loss, avg_loss = run_epoch(model, valid_data, compute_stats=True)
+        val_ppl, val_loss, avg_loss, avg_grad = run_epoch(model, valid_data, compute_stats=True)
 
         lc_path = os.path.join(args.save_dir, 'Average_Loss.npy')
         print('\nDONE\n\nSaving learning curves to '+lc_path)
