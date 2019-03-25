@@ -5,8 +5,11 @@ debug    False
 dp_keep_prob    0.9
 emb_size    200
 evaluate    False
+generate_sequence    False
+generate_sequence_len    35
 hidden_size    512
 initial_lr    0.001
+load_model    None
 model    TRANSFORMER
 num_epochs    40
 num_layers    2
